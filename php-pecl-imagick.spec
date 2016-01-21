@@ -1,3 +1,5 @@
+# centos/sclo spec file for php-pecl-imagick, from:
+#
 # remirepo spec file for php-pecl-imagick
 #
 # Copyright (c) 2008-2016 Remi Collet
@@ -8,9 +10,9 @@
 #
 %if 0%{?scl:1}
 %if "%{scl}" == "rh-php56"
-%global sub_prefix more-php56-
+%global sub_prefix sclo-php56-
 %else
-%global sub_prefix %{scl_prefix}
+%global sub_prefix sclo-%{scl_prefix}
 %endif
 %endif
 
@@ -20,67 +22,36 @@
 %{!?__php:       %global __php       %{_bindir}/php}
 
 %global pecl_name   imagick
-#global prever      RC2
-%global with_zts    0%{?__ztsphp:1}
 %if "%{php_version}" < "5.6"
 %global ini_name  %{pecl_name}.ini
 %else
 %global ini_name  40-%{pecl_name}.ini
 %endif
 
-# We don't really rely on upstream ABI
-%global imbuildver %(pkg-config --silence-errors --modversion ImageMagick 2>/dev/null || echo 65536)
-
 Summary:       Extension to create and modify images using ImageMagick
 Name:          %{?sub_prefix}php-pecl-imagick
 Version:       3.3.0
-Release:       1%{?dist}%{!?scl:%{!?nophptag:%(%{__php} -r 'echo ".".PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')}}
+Release:       1%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/imagick
 Source:        http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: %{?scl_prefix}php-devel
 BuildRequires: %{?scl_prefix}php-pear
 BuildRequires: pcre-devel
-%if "%{?vendor}" == "Remi Collet"
-%if 0%{?fedora} > 20
-BuildRequires: ImageMagick-devel >= 6.8.8
-Requires:      ImageMagick-libs%{?_isa}  >= %{imbuildver}
-%else
-BuildRequires: ImageMagick-last-devel >= 6.9.2
-Requires:      ImageMagick-last-libs%{?_isa}  >= %{imbuildver}
-%endif
-%else
 BuildRequires: ImageMagick-devel >= 6.2.4
-%endif
 
 Requires:      %{?scl_prefix}php(zend-abi) = %{php_zend_api}
 Requires:      %{?scl_prefix}php(api) = %{php_core_api}
-%{?_sclreq:Requires: %{?scl_prefix}runtime%{?_sclreq}%{?_isa}}
 
 Provides:      %{?scl_prefix}php-%{pecl_name} = %{version}%{?prever}
 Provides:      %{?scl_prefix}php-%{pecl_name}%{?_isa} = %{version}%{?prever}
 Provides:      %{?scl_prefix}php-pecl(%{pecl_name}) = %{version}%{?prever}
 Provides:      %{?scl_prefix}php-pecl(%{pecl_name})%{?_isa} = %{version}%{?prever}
+Provides:      %{?scl_prefix}php-pecl-%{pecl_name} = %{version}-%{release}
+Provides:      %{?scl_prefix}php-pecl-%{pecl_name}%{?_isa} = %{version}-%{release}
 Conflicts:     %{?scl_prefix}php-pecl-gmagick
-
-%if "%{?vendor}" == "Remi Collet" && 0%{!?scl:1}
-# Other third party repo stuff
-Obsoletes:     php53-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php53u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php54-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php54w-pecl-%{pecl_name} <= %{version}
-%if "%{php_version}" > "5.5"
-Obsoletes:     php55u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php55w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "5.6"
-Obsoletes:     php56u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php56w-pecl-%{pecl_name} <= %{version}
-%endif
-%endif
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter private shared
@@ -101,21 +72,20 @@ Summary:       %{pecl_name} extension developer files (header)
 Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
 Requires:      %{?scl_prefix}php-devel%{?_isa}
+Provides:      %{?scl_prefix}php-pecl-%{pecl_name}-devel = %{version}-%{release}
+Provides:      %{?scl_prefix}php-pecl-%{pecl_name}-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 These are the files needed to compile programs using %{pecl_name} extension.
 
 
 %prep
-echo TARGET is %{name}-%{version}-%{release}
 %setup -q -c
 
 mv %{pecl_name}-%{version}%{?prever} NTS
 
 # don't install any font (and test using it)
 # don't install empty file (d41d8cd98f00b204e9800998ecf8427e)
-# fix tests role
-# https://github.com/mkoppanen/imagick/commit/64ef2a7991c2cdc22b9b2275e732439dc21cede8
 sed -e '/anonymous_pro_minus.ttf/d' \
     -e '/015-imagickdrawsetresolution.phpt/d' \
     -e '/OFL.txt/d' \
@@ -151,10 +121,6 @@ imagick.skip_version_check=1
 ;imagick.progress_monitor=0
 EOF
 
-%if %{with_zts}
-cp -r NTS ZTS
-%endif
-
 
 %build
 : Standard NTS build
@@ -163,18 +129,8 @@ cd NTS
 %configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/php-config
 make %{?_smp_mflags}
 
-%if %{with_zts}
-cd ../ZTS
-: ZTS build
-%{_bindir}/zts-phpize
-%configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
-%endif
-
 
 %install
-rm -rf %{buildroot}
-
 make install INSTALL_ROOT=%{buildroot} -C NTS
 
 # Drop in the bit of configuration
@@ -182,11 +138,6 @@ install -D -m 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 
 # Install XML package description
 install -D -p -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
-
-%if %{with_zts}
-make install INSTALL_ROOT=%{buildroot} -C ZTS
-install -D -m 644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
-%endif
 
 # Test & Documentation
 for i in $(grep 'role="test"' package.xml | sed -e 's/^.*name="//;s/".*$//')
@@ -216,7 +167,7 @@ fi
 
 
 %check
-%if 0%{?fedora} == 19 || 0%{?rhel} == 7
+%if 0%{?rhel} == 7
 # 001- success
 # 001+ php: unable to acquire cache view `No such file or directory' @ fatal/cache-view.c/AcquireAuthenticCacheView/121.
 # See https://bugzilla.redhat.com/1228034
@@ -240,52 +191,22 @@ REPORT_EXIT_STATUS=1 \
 NO_INTERACTION=1 \
 %{__php} -n run-tests.php --show-diff
 
-%if %{with_zts}
-: simple module load test for ZTS extension
-cd ../ZTS
-%{__ztsphp} --no-php-ini \
-    --define extension_dir=%{buildroot}%{php_ztsextdir} \
-    --define extension=%{pecl_name}.so \
-    --modules | grep %{pecl_name}
-
-: upstream test suite for ZTS extension
-export TEST_PHP_EXECUTABLE=%{__ztsphp}
-%{__ztsphp} -n run-tests.php \
-    -n -q --show-diff \
-    -d extension_dir=%{buildroot}%{php_ztsextdir} \
-    -d extension=%{pecl_name}.so
-%endif
-
-
-%clean
-rm -rf %{buildroot}
-
 
 %files
-%defattr(-,root,root,-)
-%{?_licensedir:%license NTS/LICENSE}
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
-
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
-%{php_ztsextdir}/%{pecl_name}.so
-%endif
-
 %files devel
-%defattr(-,root,root,-)
 %doc %{pecl_testdir}/%{pecl_name}
 %{php_incldir}/ext/%{pecl_name}
 
-%if %{with_zts}
-%{php_ztsincldir}/ext/%{pecl_name}
-%endif
-
 
 %changelog
+* Thu Jan 21 2016 Remi Collet <remi@fedoraproject.org> - 3.3.0-1
+- cleanup for SCLo build
+
 * Fri Dec  4 2015 Remi Collet <remi@fedoraproject.org> - 3.3.0-1
 - update to 3.3.0
 
