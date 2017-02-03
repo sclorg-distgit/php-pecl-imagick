@@ -2,35 +2,29 @@
 #
 # remirepo spec file for php-pecl-imagick
 #
-# Copyright (c) 2008-2016 Remi Collet
+# Copyright (c) 2008-2017 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
 # Please, preserve the changelog entries
 #
 %if 0%{?scl:1}
+%global sub_prefix sclo-%{scl_prefix}
 %if "%{scl}" == "rh-php56"
 %global sub_prefix sclo-php56-
-%else
-%global sub_prefix sclo-%{scl_prefix}
 %endif
+%if "%{scl}" == "rh-php70"
+%global sub_prefix sclo-php70-
+%endif
+%scl_package       php-pecl-imagick
 %endif
 
-%{?scl:          %scl_package        php-pecl-imagick}
-%{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
-%{!?__pecl:      %global __pecl      %{_bindir}/pecl}
-%{!?__php:       %global __php       %{_bindir}/php}
-
-%global pecl_name   imagick
-%if "%{php_version}" < "5.6"
-%global ini_name  %{pecl_name}.ini
-%else
-%global ini_name  40-%{pecl_name}.ini
-%endif
+%global pecl_name  imagick
+%global ini_name   40-%{pecl_name}.ini
 
 Summary:       Extension to create and modify images using ImageMagick
 Name:          %{?sub_prefix}php-pecl-imagick
-Version:       3.3.0
+Version:       3.4.3
 Release:       1%{?dist}
 License:       PHP
 Group:         Development/Languages
@@ -40,7 +34,7 @@ Source:        http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 BuildRequires: %{?scl_prefix}php-devel
 BuildRequires: %{?scl_prefix}php-pear
 BuildRequires: pcre-devel
-BuildRequires: ImageMagick-devel >= 6.2.4
+BuildRequires: ImageMagick-devel >= 6.5.3
 
 Requires:      %{?scl_prefix}php(zend-abi) = %{php_zend_api}
 Requires:      %{?scl_prefix}php(api) = %{php_core_api}
@@ -168,14 +162,19 @@ fi
 
 %check
 %if 0%{?rhel} == 7
-# 001- success
+# ========DIFF========
 # 001+ php: unable to acquire cache view `No such file or directory' @ fatal/cache-view.c/AcquireAuthenticCacheView/121.
+# 001- success
 # See https://bugzilla.redhat.com/1228034
 : ignore failed test with ImageMagick 6.7.8
 rm ?TS/tests/bug20636.phpt
+# ========DIFF======== (only minor size diff)
+# 003+ x : 55
+# 004+ y : 47
+# 003- x : 50
+# 004- y : 50
+rm ?TS/tests/151_Imagick_subImageMatch_basic.phpt
 %endif
-# https://github.com/mkoppanen/imagick/issues/97
-#rm ?TS/tests/024-ispixelsimilar.phpt
 
 : simple module load test for NTS extension
 cd NTS
@@ -204,6 +203,11 @@ NO_INTERACTION=1 \
 
 
 %changelog
+* Fri Feb  3 2017 Remi Collet <remi@fedoraproject.org> - 3.4.3-1
+- update to 3.4.3 (stable for PHP 5 and 7)
+- add support for rh-php70 collection
+- drop support for php54 and php55 collections
+
 * Thu Jan 21 2016 Remi Collet <remi@fedoraproject.org> - 3.3.0-1
 - cleanup for SCLo build
 
