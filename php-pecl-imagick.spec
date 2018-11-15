@@ -2,7 +2,7 @@
 #
 # remirepo spec file for php-pecl-imagick
 #
-# Copyright (c) 2008-2017 Remi Collet
+# Copyright (c) 2008-2018 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
@@ -10,11 +10,14 @@
 #
 %if 0%{?scl:1}
 %global sub_prefix sclo-%{scl_prefix}
-%if "%{scl}" == "rh-php56"
-%global sub_prefix sclo-php56-
-%endif
 %if "%{scl}" == "rh-php70"
 %global sub_prefix sclo-php70-
+%endif
+%if "%{scl}" == "rh-php71"
+%global sub_prefix sclo-php71-
+%endif
+%if "%{scl}" == "rh-php72"
+%global sub_prefix sclo-php72-
 %endif
 %scl_package       php-pecl-imagick
 %endif
@@ -25,7 +28,7 @@
 Summary:       Extension to create and modify images using ImageMagick
 Name:          %{?sub_prefix}php-pecl-imagick
 Version:       3.4.3
-Release:       1%{?dist}
+Release:       3%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/imagick
@@ -203,6 +206,12 @@ NO_INTERACTION=1 \
 
 
 %changelog
+* Thu Nov 15 2018 Remi Collet <remi@remirepo.net> - 3.4.3-3
+- build for sclo-php72
+
+* Thu Aug 10 2017 Remi Collet <remi@remirepo.net> - 3.4.3-2
+- change for sclo-php71
+
 * Fri Feb  3 2017 Remi Collet <remi@fedoraproject.org> - 3.4.3-1
 - update to 3.4.3 (stable for PHP 5 and 7)
 - add support for rh-php70 collection
