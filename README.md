@@ -29,6 +29,7 @@ PHP 7.0 / EL 6
     cbs add-pkg sclo6-sclo-php70-sclo-testing   --owner=sclo  sclo-php70-php-pecl-imagick
     cbs add-pkg sclo6-sclo-php70-sclo-release   --owner=sclo  sclo-php70-php-pecl-imagick
     cbs build   sclo6-sclo-php70-sclo-el6       <above>.src.rpm
+    cbs tag-build sclo6-sclo-php70-sclo-testing   <previous>
 
 PHP 7.0 / EL 7
 
@@ -37,4 +38,5 @@ PHP 7.0 / EL 7
     cbs add-pkg sclo7-sclo-php70-sclo-testing   --owner=sclo  sclo-php70-php-pecl-imagick
     cbs add-pkg sclo7-sclo-php70-sclo-release   --owner=sclo  sclo-php70-php-pecl-imagick
     cbs build   sclo7-sclo-php70-sclo-el7       <above>.src.rpm
+    cbs tag-build sclo7-sclo-php70-sclo-testing   <previous>
 
