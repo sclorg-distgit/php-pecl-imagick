@@ -2,7 +2,7 @@
 #
 # remirepo spec file for php-pecl-imagick
 #
-# Copyright (c) 2008-2019 Remi Collet
+# Copyright (c) 2008-2020 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
@@ -10,12 +10,6 @@
 #
 %if 0%{?scl:1}
 %global sub_prefix sclo-%{scl_prefix}
-%if "%{scl}" == "rh-php70"
-%global sub_prefix sclo-php70-
-%endif
-%if "%{scl}" == "rh-php71"
-%global sub_prefix sclo-php71-
-%endif
 %if "%{scl}" == "rh-php72"
 %global sub_prefix sclo-php72-
 %endif
@@ -31,7 +25,7 @@
 Summary:       Extension to create and modify images using ImageMagick
 Name:          %{?sub_prefix}php-pecl-imagick
 Version:       3.4.4
-Release:       2%{?dist}
+Release:       3%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/imagick
@@ -223,6 +217,9 @@ NO_INTERACTION=1 \
 
 
 %changelog
+* Fri Apr 10 2020 Remi Collet <remi@fedoraproject.org> - 3.4.4-3
+- rebuid for new ImageMagick in 7.8
+
 * Fri Oct 25 2019 Remi Collet <remi@fedoraproject.org> - 3.4.4-2
 - build for sclo-php73
 - ignore test failing because of https://bugzilla.redhat.com/1743658
